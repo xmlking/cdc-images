@@ -1,0 +1,14 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+### Project
+NOTES.md
+.DS_Store
+
+### JetBrains template
+.idea/
+*.iws
+/out/
+
+### Docker
+target-docker
+target

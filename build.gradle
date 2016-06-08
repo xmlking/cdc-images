@@ -1,0 +1,34 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+group = 'io.confluent'
+version = '1.0.0-SNAPSHOT'
+
+description = """docker-utils"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    maven {
+        name "confluent"
+        url 'http://packages.confluent.io/maven/'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    compile "net.sf.jopt-simple:jopt-simple:3.2"
+    compile "org.slf4j:slf4j-api:1.7.6"
+    compile "org.slf4j:slf4j-log4j12:1.7.6"
+    compile "log4j:log4j:1.2.17"
+
+    testCompile "junit:junit:4.12"
+}
+
+mainClassName = "io.confluent.docker.util.PropertyEditor"
+
+startScripts.doLast {
+    file(startScripts.unixScript).renameTo(startScripts.unixScript.parent + File.separator + "docker-edit-properties")
+    file(startScripts.windowsScript).renameTo(startScripts.windowsScript.parent + File.separator + "docker-edit-properties.bat")
+}

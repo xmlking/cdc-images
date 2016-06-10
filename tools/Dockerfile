@@ -2,13 +2,13 @@
 # Expects links to "kafka" and "zk" containers.
 #
 # Usage:
-#   docker build -t confluent/tools tools
+#   docker build -t cdc/tools tools
 #   docker run -it --rm --link zookeeper:zookeeper --link kafka:kafka --link schema-registry:schema_registry \
-#       confluent/tools kafka-avro-console-consumer --property print.key=true --topic test --from-beginning
+#       cdc/tools kafka-avro-console-consumer --property print.key=true --topic test --from-beginning
 
-FROM confluent/platform
+FROM cdc/platform
 
-MAINTAINER contact@confluent.io
+MAINTAINER xmlking@gmail.com
 
 WORKDIR /usr/bin
 

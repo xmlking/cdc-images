@@ -1,0 +1,28 @@
+version: "2"
+services:
+  zookeeper:
+    image: cdc/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: cdc/kafka
+    depends_on:
+      - zookeeper
+    links:
+      - "zookeeper:zookeeper"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+    ports:
+      - "9092:9092"
+  schema-registry:
+    image: cdc/schema-registry
+    depends_on:
+      - zookeeper
+      - kafka
+    links:
+      - "zookeeper:zookeeper"
+      - "kafka:kafka"
+    environment:
+      SR_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
+    ports:
+      - "8081:8081"

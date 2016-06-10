@@ -1,5 +1,8 @@
-apply plugin: 'java'
-apply plugin: 'application'
+plugins {
+    id "java"
+    id "application"
+    id "com.github.johnrengelman.shadow" version "1.2.3"
+}
 
 group = 'io.confluent'
 version = '1.0.0-SNAPSHOT'
@@ -27,8 +30,3 @@ dependencies {
 }
 
 mainClassName = "io.confluent.docker.util.PropertyEditor"
-
-startScripts.doLast {
-    file(startScripts.unixScript).renameTo(startScripts.unixScript.parent + File.separator + "docker-edit-properties")
-    file(startScripts.windowsScript).renameTo(startScripts.windowsScript.parent + File.separator + "docker-edit-properties.bat")
-}

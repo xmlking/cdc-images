@@ -11,19 +11,19 @@ fi
 
 set -ex
 
-if [ -z ${DOCKER_HOST+x} ];
-then
-  echo "DOCKER_HOST must be set before running this script.";
-  exit 1
-fi
+#if [ -z ${DOCKER_HOST+x} ];
+#then
+#  echo "DOCKER_HOST must be set before running this script.";
+#  exit 1
+#fi
 
-gradlew clean installDist
+./gradlew clean installShadowApp
 
 TAGS=""
 
 STAGING_DIRECTORY='./target-docker'
 
-DOCKER_UTILS_DIRECTORY="$(find build -name 'docker-utils' -type d -maxdepth 2 -mindepth 2)"
+DOCKER_UTILS_DIRECTORY="$(find build -name 'docker-edit-properties' -type d -maxdepth 2 -mindepth 2)"
 #DOCKER_UTILS_DIRECTORY="$(find target -name 'docker-utils*-package' -type d -maxdepth 1 -mindepth 1)"
 
 TOOLS_COMMAND_LIST="${STAGING_DIRECTORY}/commands"
@@ -36,11 +36,11 @@ then
 fi
 
 for SCALA_VERSION in ${SCALA_VERSIONS}; do
-    echo "Building confluent-platform-${SCALA_VERSION}"
+    echo "Building cdc-platform-${SCALA_VERSION}"
 
-    DOCKER_FILE="confluent-platform/Dockerfile.${SCALA_VERSION}"
+    DOCKER_FILE="cdc-platform/Dockerfile.${SCALA_VERSION}"
 
-    cp confluent-platform/Dockerfile "$DOCKER_FILE"
+    cp cdc-platform/Dockerfile "$DOCKER_FILE"
 
     TAR_NAME="confluent-${CONFLUENT_PLATFORM_VERSION}-${SCALA_VERSION}"
     DOWNLOAD_TAR_URL="${PACKAGE_URL}/${TAR_NAME}.tar.gz"
@@ -89,19 +89,22 @@ for SCALA_VERSION in ${SCALA_VERSIONS}; do
     echo "ADD ${TAR_ROOT}/bin/ /usr/bin/" >> "$DOCKER_FILE"
     echo "ADD ${TAR_ROOT}/etc/ /etc/" >> "$DOCKER_FILE"
     echo "ADD ${TAR_ROOT}/share/ /usr/share/" >> "$DOCKER_FILE"
+    # echo "ADD ${DOCKER_UTILS_DIRECTORY}/bin/ /usr/bin/" >> "$DOCKER_FILE"
+    # echo "ADD ${DOCKER_UTILS_DIRECTORY}/share/ /usr/share/" >> "$DOCKER_FILE"
     echo "ADD ${DOCKER_UTILS_DIRECTORY}/bin/ /usr/bin/" >> "$DOCKER_FILE"
-    echo "ADD ${DOCKER_UTILS_DIRECTORY}/share/ /usr/share/" >> "$DOCKER_FILE"
+    echo "ADD ${DOCKER_UTILS_DIRECTORY}/lib/ /usr/lib/" >> "$DOCKER_FILE"
 
-    TAG="confluent/platform-${SCALA_VERSION}:${CONFLUENT_PLATFORM_VERSION}"
+
+    TAG="cdc/platform-${SCALA_VERSION}:${CONFLUENT_PLATFORM_VERSION}"
     TAGS="${TAGS} ${TAG}"
     docker build $DOCKER_BUILD_OPTS -t $TAG -f "${DOCKER_FILE}" .
-    docker tag $DOCKER_TAG_OPTS "${TAG}" "confluent/platform-${SCALA_VERSION}:latest"
+    docker tag $DOCKER_TAG_OPTS "${TAG}" "cdc/platform-${SCALA_VERSION}:latest"
 
     if [ "x$SCALA_VERSION" = "x$DEFAULT_SCALA_VERSION" ]; then
-      docker tag $DOCKER_TAG_OPTS "${TAG}" "confluent/platform:latest"
-      TAGS="${TAGS} confluent/platform:latest"
-      docker tag $DOCKER_TAG_OPTS "${TAG}" "confluent/platform:${CONFLUENT_PLATFORM_VERSION}"
-      TAGS="${TAGS} confluent/platform:${CONFLUENT_PLATFORM_VERSION}"
+      docker tag $DOCKER_TAG_OPTS "${TAG}" "cdc/platform:latest"
+      TAGS="${TAGS} cdc/platform:latest"
+      docker tag $DOCKER_TAG_OPTS "${TAG}" "cdc/platform:${CONFLUENT_PLATFORM_VERSION}"
+      TAGS="${TAGS} cdc/platform:${CONFLUENT_PLATFORM_VERSION}"
     fi
 done
 
@@ -113,7 +116,7 @@ if [ "\$1" = "alias" ]; then
 EOL
 
 while read COMMAND; do
-  echo "    echo alias ${COMMAND}=\'docker run --rm --interactive --net=host \"confluent/tools:${CONFLUENT_PLATFORM_VERSION}\" ${COMMAND}\'" >> ./tools/confluent-tools.sh
+  echo "    echo alias ${COMMAND}=\'docker run --rm --interactive --net=host \"cdc/tools:${CONFLUENT_PLATFORM_VERSION}\" ${COMMAND}\'" >> ./tools/confluent-tools.sh
 done <$TOOLS_COMMAND_LIST
 
 echo else >> ./tools/confluent-tools.sh
@@ -130,29 +133,29 @@ echo fi >> ./tools/confluent-tools.sh
 CONFLUENT_IMAGES="schema-registry rest-proxy"
 
 for IMAGE in ${CONFLUENT_IMAGES}; do
-  docker build $DOCKER_BUILD_OPTS -t "confluent/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}" "${IMAGE}/"
-  TAGS="${TAGS} confluent/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}"
-  docker tag $DOCKER_TAG_OPTS "confluent/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}" "confluent/${IMAGE}:latest"
-  TAGS="${TAGS} confluent/${IMAGE}:latest"
+  docker build $DOCKER_BUILD_OPTS -t "cdc/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}" "${IMAGE}/"
+  TAGS="${TAGS} cdc/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}"
+  docker tag $DOCKER_TAG_OPTS "cdc/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}" "cdc/${IMAGE}:latest"
+  TAGS="${TAGS} cdc/${IMAGE}:latest"
 done
 
 
 KAFKA_IMAGES="kafka tools"
 
 for IMAGE in ${KAFKA_IMAGES}; do
-  docker build $DOCKER_BUILD_OPTS -t "confluent/${IMAGE}:${KAFKA_VERSION}" "${IMAGE}/"
-  TAGS="${TAGS} confluent/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}"
-  docker tag $DOCKER_TAG_OPTS "confluent/${IMAGE}:${KAFKA_VERSION}" "confluent/${IMAGE}:latest"
-  TAGS="${TAGS} confluent/${IMAGE}:latest"
+  docker build $DOCKER_BUILD_OPTS -t "cdc/${IMAGE}:${KAFKA_VERSION}" "${IMAGE}/"
+  TAGS="${TAGS} cdc/${IMAGE}:${KAFKA_VERSION}"
+  docker tag $DOCKER_TAG_OPTS "cdc/${IMAGE}:${KAFKA_VERSION}" "cdc/${IMAGE}:latest"
+  TAGS="${TAGS} cdc/${IMAGE}:latest"
 done
 
 ZOOKEEPER_IMAGES="zookeeper"
 
 for IMAGE in ${ZOOKEEPER_IMAGES}; do
-  docker build $DOCKER_BUILD_OPTS -t "confluent/${IMAGE}:${ZOOKEEPER_VERSION}" "${IMAGE}/"
-  TAGS="${TAGS} confluent/${IMAGE}:${CONFLUENT_PLATFORM_VERSION}"
-  docker tag $DOCKER_TAG_OPTS "confluent/${IMAGE}:${ZOOKEEPER_VERSION}" "confluent/${IMAGE}:latest"
-  TAGS="${TAGS} confluent/${IMAGE}:latest"
+  docker build $DOCKER_BUILD_OPTS -t "cdc/${IMAGE}:${ZOOKEEPER_VERSION}" "${IMAGE}/"
+  TAGS="${TAGS} cdc/${IMAGE}:${ZOOKEEPER_VERSION}"
+  docker tag $DOCKER_TAG_OPTS "cdc/${IMAGE}:${ZOOKEEPER_VERSION}" "cdc/${IMAGE}:latest"
+  TAGS="${TAGS} cdc/${IMAGE}:latest"
 done
 
 

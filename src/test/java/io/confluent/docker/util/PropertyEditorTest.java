@@ -35,8 +35,8 @@ public class PropertyEditorTest {
     input.put("KAFKA_HEAP_OPTS", "-xmx2048m");
     input.put("LOG_DIR", "/var/log/kafka");
     input.put("CA_CERTIFICATES_JAVA_VERSION", "20140324");
-    input.put("CONFLUENT_GROUP", "confluent");
-    input.put("CONFLUENT_USER", "confluent");
+    input.put("CDC_GROUP", "cdc");
+    input.put("CDC_USER", "cdc");
     input.put("HOME", "/root");
     input.put("HOSTNAME", "ff7ef0c2191b");
     input.put("JAVA_DEBIAN_VERSION", "8u72-b15-1~bpo8+1");
@@ -80,8 +80,8 @@ public class PropertyEditorTest {
     input.put("KAFKA_HEAP_OPTS", "-xmx2048m");
     input.put("LOG_DIR", "/var/log/kafka");
     input.put("CA_CERTIFICATES_JAVA_VERSION", "20140324");
-    input.put("CONFLUENT_GROUP", "confluent");
-    input.put("CONFLUENT_USER", "confluent");
+    input.put("CDC_GROUP", "cdc");
+    input.put("CDC_USER", "cdc");
     input.put("HOME", "/root");
     input.put("HOSTNAME", "ff7ef0c2191b");
     input.put("JAVA_DEBIAN_VERSION", "8u72-b15-1~bpo8+1");
